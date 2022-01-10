@@ -14,6 +14,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
@@ -31,7 +32,7 @@ public class AccountService {
     private List<String> sources;
 
     public ValidationResponse getAccountValidation(ValidationRequest validationRequest) {
-        if (!validationRequest.getSources().isEmpty()) {
+        if (!CollectionUtils.isEmpty(validationRequest.getSources())) {
             sources = validationRequest.getSources();
         } else {
             sources = Arrays.asList(dataSourceUrl);

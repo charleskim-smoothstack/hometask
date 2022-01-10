@@ -2,7 +2,6 @@ package com.charleskim.hometask.controller;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -14,22 +13,25 @@ import com.charleskim.hometask.dto.ValidationResponse;
 import com.charleskim.hometask.service.AccountService;
 
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
 class AccountServiceTest {
-    @Mock
+    @Autowired
+    private AccountService accountService;
+
+    @MockBean
     private RestTemplate restTemplate;
 
-    @InjectMocks
-    private AccountService accountService;
+    @Value("${data-source-url}")
+    private String dataSourceUrl;
 
     @Test
     void getAccountValidation_validValidationRequestWithValidAccount_ValidValidationResponse() {
@@ -95,6 +97,20 @@ class AccountServiceTest {
 
     @Test
     void getAccountValidation_validationRequestWithValidAccountNoSources_ValidValidationResponse() {
-        fail("Test not implemented.");
+        Long accountNumber = 1L;
+        AccountInfo accountInfo = new AccountInfo(accountNumber);
+        RequestEntity<AccountInfo> requestEntity = RequestEntity.post(dataSourceUrl)
+                .contentType(MediaType.APPLICATION_JSON).body(accountInfo);
+        Boolean isValid = Boolean.TRUE;
+        AccountStatus accountStatus = new AccountStatus(isValid);
+        ResponseEntity<AccountStatus> responseEntity = ResponseEntity.ok(accountStatus);
+        when(restTemplate.exchange(requestEntity, AccountStatus.class)).thenReturn(responseEntity);
+
+        ValidationRequest validationRequest = new ValidationRequest();
+        validationRequest.setAccountNumber(accountNumber);
+        ValidationResponse validationResponse = accountService.getAccountValidation(validationRequest);
+        ValidationResponse expectedValidationResponse = new ValidationResponse();
+        expectedValidationResponse.addValidationDetails(dataSourceUrl, isValid);
+        assertThat(validationResponse, is(expectedValidationResponse));
     }
 }
