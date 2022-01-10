@@ -37,7 +37,7 @@ public class AccountService {
         } else {
             sources = Arrays.asList(dataSourceUrl);
         }
-        ValidationResponse accountValidationResponse = new ValidationResponse();
+        ValidationResponse validationResponse = new ValidationResponse();
         AccountInfo accountInfo = new AccountInfo(validationRequest.getAccountNumber());
         for (String source : sources) {
             RequestEntity<AccountInfo> requestEntity = RequestEntity.post(source)
@@ -49,8 +49,8 @@ public class AccountService {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Account validation failed.");
             }
             AccountStatus accountValidation = responseEntity.getBody();
-            accountValidationResponse.addValidationDetails(source, accountValidation.getIsValid());
+            validationResponse.addValidationResult(source, accountValidation.getIsValid());
         }
-        return accountValidationResponse;
+        return validationResponse;
     }
 }

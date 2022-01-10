@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ValidationInfo {
+public class ValidationResult {
     @NotEmpty
     private String source;
 

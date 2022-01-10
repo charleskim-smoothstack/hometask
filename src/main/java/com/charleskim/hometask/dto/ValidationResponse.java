@@ -11,9 +11,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ValidationResponse {
-    private List<ValidationInfo> result = new ArrayList<>();
+    private List<ValidationResult> result = new ArrayList<>();
 
-    public void addValidationDetails(String sourceUrl, Boolean isValid) {
-        result.add(new ValidationInfo(sourceUrl, isValid));
+    public void addValidationResult(String sourceUrl, Boolean isValid) {
+        result.add(new ValidationResult(sourceUrl, isValid));
     }
 }

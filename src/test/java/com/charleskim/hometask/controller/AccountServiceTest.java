@@ -34,7 +34,7 @@ class AccountServiceTest {
     private String dataSourceUrl;
 
     @Test
-    void getAccountValidation_validValidationRequestWithValidAccount_ValidValidationResponse() {
+    void getAccountValidation_ValidAccountOneSource_IsValidTrue() {
         String source = "source-url";
         Long accountNumber = 1L;
         AccountInfo accountInfo = new AccountInfo(accountNumber);
@@ -48,12 +48,12 @@ class AccountServiceTest {
         ValidationRequest validationRequest = new ValidationRequest(accountNumber, Arrays.asList(source));
         ValidationResponse validationResponse = accountService.getAccountValidation(validationRequest);
         ValidationResponse expectedValidationResponse = new ValidationResponse();
-        expectedValidationResponse.addValidationDetails(source, isValid);
+        expectedValidationResponse.addValidationResult(source, isValid);
         assertThat(validationResponse, is(expectedValidationResponse));
     }
 
     @Test
-    void getAccountValidation_validationRequestWithInvalidAccount_ValidValidationResponse() {
+    void getAccountValidation_InvalidAccountOneSource_IsValidFalse() {
         String source = "source-url";
         Long accountNumber = 1L;
         AccountInfo accountInfo = new AccountInfo(accountNumber);
@@ -67,12 +67,12 @@ class AccountServiceTest {
         ValidationRequest validationRequest = new ValidationRequest(accountNumber, Arrays.asList(source));
         ValidationResponse validationResponse = accountService.getAccountValidation(validationRequest);
         ValidationResponse expectedValidationResponse = new ValidationResponse();
-        expectedValidationResponse.addValidationDetails(source, isValid);
+        expectedValidationResponse.addValidationResult(source, isValid);
         assertThat(validationResponse, is(expectedValidationResponse));
     }
 
     @Test
-    void getAccountValidation_validationRequestWithValidAccountMultipleSources_ValidValidationResponse() {
+    void getAccountValidation_ValidAccountMultipleSources_IsValidTrueForBothSources() {
         String source1 = "source1-url";
         String source2 = "source2-url";
         Long accountNumber = 1L;
@@ -90,13 +90,13 @@ class AccountServiceTest {
         ValidationRequest validationRequest = new ValidationRequest(accountNumber, Arrays.asList(source1, source2));
         ValidationResponse validationResponse = accountService.getAccountValidation(validationRequest);
         ValidationResponse expectedValidationResponse = new ValidationResponse();
-        expectedValidationResponse.addValidationDetails(source1, isValid);
-        expectedValidationResponse.addValidationDetails(source2, isValid);
+        expectedValidationResponse.addValidationResult(source1, isValid);
+        expectedValidationResponse.addValidationResult(source2, isValid);
         assertThat(validationResponse, is(expectedValidationResponse));
     }
 
     @Test
-    void getAccountValidation_validationRequestWithValidAccountNoSources_ValidValidationResponse() {
+    void getAccountValidation_ValidAccountNoSources_IsValidTrueForDefaultSource() {
         Long accountNumber = 1L;
         AccountInfo accountInfo = new AccountInfo(accountNumber);
         RequestEntity<AccountInfo> requestEntity = RequestEntity.post(dataSourceUrl)
@@ -110,7 +110,7 @@ class AccountServiceTest {
         validationRequest.setAccountNumber(accountNumber);
         ValidationResponse validationResponse = accountService.getAccountValidation(validationRequest);
         ValidationResponse expectedValidationResponse = new ValidationResponse();
-        expectedValidationResponse.addValidationDetails(dataSourceUrl, isValid);
+        expectedValidationResponse.addValidationResult(dataSourceUrl, isValid);
         assertThat(validationResponse, is(expectedValidationResponse));
     }
 }
