@@ -2,6 +2,7 @@ package com.charleskim.hometask.controller;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -31,7 +32,7 @@ class AccountServiceTest {
     private AccountService accountService;
 
     @Test
-    void getAccountValidation_validValidationRequest_ValidValidationResponse() {
+    void getAccountValidation_validValidationRequestWithValidAccount_ValidValidationResponse() {
         String source = "source-url";
         Long accountNumber = 1L;
         AccountInfo accountInfo = new AccountInfo(accountNumber);
@@ -43,9 +44,57 @@ class AccountServiceTest {
         when(restTemplate.exchange(requestEntity, AccountStatus.class)).thenReturn(responseEntity);
 
         ValidationRequest validationRequest = new ValidationRequest(accountNumber, Arrays.asList(source));
-        ValidationResponse returnedValidationResponse = accountService.getAccountValidation(validationRequest);
-        ValidationResponse validationResponse = new ValidationResponse();
-        validationResponse.addValidationDetails(source, isValid);
-        assertThat(returnedValidationResponse, is(validationResponse));
+        ValidationResponse validationResponse = accountService.getAccountValidation(validationRequest);
+        ValidationResponse expectedValidationResponse = new ValidationResponse();
+        expectedValidationResponse.addValidationDetails(source, isValid);
+        assertThat(validationResponse, is(expectedValidationResponse));
+    }
+
+    @Test
+    void getAccountValidation_validationRequestWithInvalidAccount_ValidValidationResponse() {
+        String source = "source-url";
+        Long accountNumber = 1L;
+        AccountInfo accountInfo = new AccountInfo(accountNumber);
+        RequestEntity<AccountInfo> requestEntity = RequestEntity.post(source)
+                .contentType(MediaType.APPLICATION_JSON).body(accountInfo);
+        Boolean isValid = Boolean.FALSE;
+        AccountStatus accountStatus = new AccountStatus(isValid);
+        ResponseEntity<AccountStatus> responseEntity = ResponseEntity.ok(accountStatus);
+        when(restTemplate.exchange(requestEntity, AccountStatus.class)).thenReturn(responseEntity);
+
+        ValidationRequest validationRequest = new ValidationRequest(accountNumber, Arrays.asList(source));
+        ValidationResponse validationResponse = accountService.getAccountValidation(validationRequest);
+        ValidationResponse expectedValidationResponse = new ValidationResponse();
+        expectedValidationResponse.addValidationDetails(source, isValid);
+        assertThat(validationResponse, is(expectedValidationResponse));
+    }
+
+    @Test
+    void getAccountValidation_validationRequestWithValidAccountMultipleSources_ValidValidationResponse() {
+        String source1 = "source1-url";
+        String source2 = "source2-url";
+        Long accountNumber = 1L;
+        AccountInfo accountInfo = new AccountInfo(accountNumber);
+        RequestEntity<AccountInfo> requestEntity1 = RequestEntity.post(source1)
+                .contentType(MediaType.APPLICATION_JSON).body(accountInfo);
+        Boolean isValid = Boolean.TRUE;
+        AccountStatus accountStatus = new AccountStatus(isValid);
+        ResponseEntity<AccountStatus> responseEntity = ResponseEntity.ok(accountStatus);
+        when(restTemplate.exchange(requestEntity1, AccountStatus.class)).thenReturn(responseEntity);
+        RequestEntity<AccountInfo> requestEntity2 = RequestEntity.post(source2)
+                .contentType(MediaType.APPLICATION_JSON).body(accountInfo);
+        when(restTemplate.exchange(requestEntity2, AccountStatus.class)).thenReturn(responseEntity);
+
+        ValidationRequest validationRequest = new ValidationRequest(accountNumber, Arrays.asList(source1, source2));
+        ValidationResponse validationResponse = accountService.getAccountValidation(validationRequest);
+        ValidationResponse expectedValidationResponse = new ValidationResponse();
+        expectedValidationResponse.addValidationDetails(source1, isValid);
+        expectedValidationResponse.addValidationDetails(source2, isValid);
+        assertThat(validationResponse, is(expectedValidationResponse));
+    }
+
+    @Test
+    void getAccountValidation_validationRequestWithValidAccountNoSources_ValidValidationResponse() {
+        fail("Test not implemented.");
     }
 }
